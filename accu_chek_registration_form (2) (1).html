@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนรับเครื่องมือ Accu-Chek</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            padding-top: 60px; /* เพิ่ม padding สำหรับ menu strip */
+        }
+
+        /* Menu Strip Styles */
+        .menu-strip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 60px;
+        }
+
+        .menu-logo {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-items {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu-item {
+            position: relative;
+        }
+
+        .menu-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .menu-link.active {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 25px;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 20%, transparent 20%);
+            background-size: 30px 30px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .medical-info {
+            background: #f8f9ff;
+            border: 2px solid #e3f2fd;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .medical-info h3 {
+            color: #1976D2;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+
+        .info-card h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .menu-items {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 46, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .menu-items.active {
+                display: flex;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 30px 20px;
+            }
+        }
+
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .data-display {
+            display: none;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .data-display h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+        }
+
+        .data-value {
+            flex: 2;
+            color: #212529;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #117a8b);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Strip -->
+    <nav class="menu-strip">
+        <div class="menu-container">
+            <div class="menu-logo">
+                🏥 Accu-Chek Management
+            </div>
+            <ul class="menu-items" id="menuItems">
+                <li class="menu-item">
+                    <a href="#" class="menu-link active" onclick="showSection('registration')">
+                        📝 ลงทะเบียน
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('search')">
+                        🔍 ค้นหาข้อมูล
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        📊 รายงาน
+                        <span style="font-size: 0.8rem;">▼</span>
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-item" onclick="showSection('summary')">
+                            📈 สรุปการลงทะเบียน
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="showSection('statistics')">
+                            📊 สstatisticsิข้อมูล
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="exportAllData()">
+                            💾 ส่งออกข้อมูลทั้งหมด
+                        </a>
+                    </div>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        ⚙️ จัดการ
+                        <span style="font-size: 0.8rem;">▼</span>
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-item" onclick="clearAllData()">
+                            🗑️ ล้างข้อมูลทั้งหมด
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="showSection('settings')">
+                            ⚙️ ตั้งค่าระบบ
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="showSection('help')">
+                            ❓ ช่วยเหลือ
+                        </a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                ☰
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🩺 ลงทะเบียนรับเครื่องมือ Accu-Chek</h1>
+            <p>เครื่องวัดน้ำตาลในเลือดสำหรับผู้ป่วยเบาหวาน</p>
+        </div>
+
+        <div class="form-container">
+            <div class="info-card">
+                <h4>📋 ข้อมูลสำคัญ</h4>
+                <p>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง เพื่อให้เราสามารถส่งมอบเครื่องมือ Accu-Chek ให้กับท่านได้อย่างรวดเร็ว</p>
+            </div>
+
+            <form id="registrationForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">ชื่อ <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">นามสกุล <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="idCard">เลขบัตรประชาชน <span class="required">*</span></label>
+                        <input type="text" id="idCard" name="idCard" pattern="[0-9]{13}" maxlength="13" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthDate">วันเกิด <span class="required">*</span></label>
+                        <input type="date" id="birthDate" name="birthDate" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="phone">เบอร์โทรศัพท์ <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">อีเมล</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="address">ที่อยู่ <span class="required">*</span></label>
+                    <textarea id="address" name="address" rows="3" required placeholder="บ้านเลขที่ ซอย ถนน ตำบล อำเภร จังหวัด รหัสไปรษณีย์"></textarea>
+                </div>
+
+                <div class="medical-info">
+                    <h3>📊 ข้อมูลทางการแพทย์</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="diabetesType">ประเภทเบาหวาน <span class="required">*</span></label>
+                            <select id="diabetesType" name="diabetesType" required>
+                                <option value="">-- เลือกประเภท --</option>
+                                <option value="type1">เบาหวานชนิดที่ 1</option>
+                                <option value="type2">เบาหวานชนิดที่ 2</option>
+                                <option value="gestational">เบาหวานขณะตั้งครรภ์</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="diagnosisYear">ปีที่ได้รับการวินิจฉัย <span class="required">*</span></label>
+                            <input type="number" id="diagnosisYear" name="diagnosisYear" min="1950" max="2025" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospital">โรงพยาบาลที่รักษาปัจจุบัน <span class="required">*</span></label>
+                        <input type="text" id="hospital" name="hospital" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctor">ชื่อแพทย์ผู้ดูแล</label>
+                        <input type="text" id="doctor" name="doctor">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deviceModel">รุ่นเครื่อง Accu-Chek ที่ต้องการ <span class="required">*</span></label>
+                    <select id="deviceModel" name="deviceModel" required>
+                        <option value="">-- เลือกรุ่น --</option>
+                        <option value="guide">Accu-Chek Guide</option>
+                        <option value="instant">Accu-Chek Instant</option>
+                        <option value="active">Accu-Chek Active</option>
+                        <option value="performa">Accu-Chek Performa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reason">เหตุผลในการขอรับเครื่องมือ</label>
+                    <textarea id="reason" name="reason" rows="3" placeholder="เช่น เครื่องเดิมชำรุด, ต้องการเครื่องสำรอง, เพิ่งได้รับการวินิจฉัย"></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="consent" name="consent" required>
+                    <label for="consent">ข้าพเจ้ายินยอมให้ใช้ข้อมูลส่วนบุคคลสำหรับการจัดส่งเครื่องมือและติดต่อเกี่ยวกับบริการ <span class="required">*</span></label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newsletter" name="newsletter">
+                    <label for="newsletter">ต้องการรับข้อมูลข่าวสารและเคล็ดลับการดูแลเบาหวาน</label>
+                </div>
+
+                <button type="submit" class="submit-btn">📝 ส่งใบสมัคร</button>
+
+                <div class="success-message" id="successMessage">
+                    <h3>✅ ลงทะเบียนสำเร็จ!</h3>
+                    <p>เราจะติดต่อท่านภายใน 3-5 วันทำการ และจัดส่งเครื่อง Accu-Chek ภายใน 7-14 วันทำการ</p>
+                </div>
+
+                <div class="data-display" id="dataDisplay">
+                    <h3>📋 ข้อมูลที่ลงทะเบียน</h3>
+                    <div id="displayedData"></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="printData()">🖨️ พิมพ์ข้อมูล</button>
+                        <button type="button" class="btn btn-success" onclick="downloadData()">💾 ดาวน์โหลด CSV</button>
+                        <button type="button" class="btn btn-info" onclick="copyData()">📋 คัดลอกข้อมูล</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // เพิ่มตัวแปรเก็บข้อมูลการลงทะเบียนทั้งหมด
+        let allRegistrations = [];
+
+        // ฟังก์ชันจัดการเมนู
+        function showSection(section) {
+            // อัปเดตสถานะเมนู
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // แสดง/ซ่อน sections ตามที่เลือก
+            const sections = ['registration', 'search', 'summary', 'statistics', 'settings', 'help'];
+            sections.forEach(s => {
+                const element = document.getElementById(s + 'Section');
+                if (element) {
+                    element.style.display = s === section ? 'block' : 'none';
+                }
+            });
+
+            // สร้าง sections ถ้ายังไม่มี
+            if (section !== 'registration') {
+                createSection(section);
+            }
+        }
+
+        function createSection(section) {
+            // ลบ section เก่าถ้ามี
+            const existingSection = document.getElementById(section + 'Section');
+            if (existingSection) {
+                existingSection.remove();
+            }
+
+            const container = document.querySelector('.form-container');
+            const newSection = document.createElement('div');
+            newSection.id = section + 'Section';
+            newSection.style.display = 'block';
+
+            switch(section) {
+                case 'search':
+                    newSection.innerHTML = createSearchSection();
+                    break;
+                case 'summary':
+                    newSection.innerHTML = createSummarySection();
+                    break;
+                case 'statistics':
+                    newSection.innerHTML = createStatisticsSection();
+                    break;
+                case 'settings':
+                    newSection.innerHTML = createSettingsSection();
+                    break;
+                case 'help':
+                    newSection.innerHTML = createHelpSection();
+                    break;
+            }
+
+            // ซ่อนฟอร์มลงทะเบียนและแสดง section ใหม่
+            document.getElementById('registrationForm').style.display = 'none';
+            document.querySelector('.info-card').style.display = 'none';
+            container.appendChild(newSection);
+        }
+
+        function createSearchSection() {
+            return `
+                <div class="medical-info">
+                    <h3>🔍 ค้นหาข้อมูลการลงทะเบียน</h3>
+                    <div class="form-group">
+                        <label for="searchQuery">ค้นหาด้วย ชื่อ-นามสกุล หรือ เลขบัตรประชาชน</label>
+                        <input type="text" id="searchQuery" placeholder="กรอกชื่อ นามสกุล หรือเลขบัตรประชาชน">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="performSearch()">🔍 ค้นหา</button>
+                    <div id="searchResults" style="margin-top: 20px;"></div>
+                </div>
+            `;
+        }
+
+        function createSummarySection() {
+            const totalRegistrations = allRegistrations.length;
+            const todayRegistrations = allRegistrations.filter(reg => {
+                const regDate = new Date(reg.registrationDate);
+                const today = new Date();
+                return regDate.toDateString() === today.toDateString();
+            }).length;
+
+            return `
+                <div class="medical-info">
+                    <h3>📈 สรุปการลงทะเบียน</h3>
+                    <div class="form-grid">
+                        <div class="info-card">
+                            <h4>📊 จำนวนทั้งหมด</h4>
+                            <p style="font-size: 2rem; color: #2196F3;">${totalRegistrations}</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>📅 วันนี้</h4>
+                            <p style="font-size: 2rem; color: #4CAF50;">${todayRegistrations}</p>
+                        </div>
+                    </div>
+                    <div id="registrationsList">
+                        ${allRegistrations.length > 0 ? generateRegistrationsList() : '<p>ยังไม่มีข้อมูลการลงทะเบียน</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createStatisticsSection() {
+            const deviceStats = {};
+            const diabetesStats = {};
+            
+            allRegistrations.forEach(reg => {
+                deviceStats[reg.deviceModel] = (deviceStats[reg.deviceModel] || 0) + 1;
+                diabetesStats[reg.diabetesType] = (diabetesStats[reg.diabetesType] || 0) + 1;
+            });
+
+            return `
+                <div class="medical-info">
+                    <h3>📊 สถิติข้อมูล</h3>
+                    <div class="form-grid">
+                        <div>
+                            <h4>รุ่นเครื่องที่ได้รับความนิยม</h4>
+                            ${Object.entries(deviceStats).map(([device, count]) => 
+                                `<div class="data-row"><span>${device}</span><span>${count} คน</span></div>`
+                            ).join('')}
+                        </div>
+                        <div>
+                            <h4>ประเภทเบาหวาน</h4>
+                            ${Object.entries(diabetesStats).map(([type, count]) => 
+                                `<div class="data-row"><span>${type}</span><span>${count} คน</span></div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createSettingsSection() {
+            return `
+                <div class="medical-info">
+                    <h3>⚙️ ตั้งค่าระบบ</h3>
+                    <div class="form-group">
+                        <label>การจัดการข้อมูล</label>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info" onclick="backupData()">💾 สำรองข้อมูล</button>
+                            <button type="button" class="btn btn-success" onclick="document.getElementById('importFile').click()">📥 นำเข้าข้อมูล</button>
+                            <button type="button" class="btn btn-danger" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+                        </div>
+                        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+                    </div>
+                </div>
+            `;
+        }
+
+        function createHelpSection() {
+            return `
+                <div class="medical-info">
+                    <h3>❓ คู่มือการใช้งาน</h3>
+                    <div class="data-display">
+                        <h4>📝 การลงทะเบียน</h4>
+                        <p>1. กรอกข้อมูลส่วนตัวให้ครบถ้วน</p>
+                        <p>2. ระบุข้อมูลทางการแพทย์</p>
+                        <p>3. เลือกรุ่นเครื่องที่ต้องการ</p>
+                        <p>4. ตรวจสอบข้อมูลและส่งฟอร์ม</p>
+                        
+                        <h4>🔍 การค้นหา</h4>
+                        <p>สามารถค้นหาด้วยชื่อ-นามสกุล หรือเลขบัตรประชาชน</p>
+                        
+                        <h4>📊 การดูรายงาน</h4>
+                        <p>ดูสถิติและสรุปการลงทะเบียนในเมนูรายงาน</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateRegistrationsList() {
+            return allRegistrations.map((reg, index) => `
+                <div class="data-display" style="margin-bottom: 15px;">
+                    <div class="data-row">
+                        <div class="data-label">ลำดับที่:</div>
+                        <div class="data-value">${index + 1}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">ชื่อ-นามสกุล:</div>
+                        <div class="data-value">${reg.firstName} ${reg.lastName}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">รุ่นเครื่อง:</div>
+                        <div class="data-value">${reg.deviceModel}</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="data-label">วันที่ลงทะเบียน:</div>
+                        <div class="data-value">${reg.registrationDate}</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-info" onclick="viewDetails(${index})">👁️ ดูรายละเอียด</button>
+                        <button class="btn btn-danger" onclick="deleteRegistration(${index})">🗑️ ลบ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchQuery').value.toLowerCase();
+            const results = allRegistrations.filter(reg => 
+                reg.firstName.toLowerCase().includes(query) ||
+                reg.lastName.toLowerCase().includes(query) ||
+                reg.idCard.includes(query)
+            );
+
+            const resultsDiv = document.getElementById('searchResults');
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<p>ไม่พบข้อมูลที่ค้นหา</p>';
+            } else {
+                resultsDiv.innerHTML = `
+                    <h4>ผลการค้นหา (${results.length} รายการ)</h4>
+                    ${results.map(reg => `
+                        <div class="data-display">
+                            <div class="data-row">
+                                <div class="data-label">ชื่อ-นามสกุล:</div>
+                                <div class="data-value">${reg.firstName} ${reg.lastName}</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">เลขบัตรประชาชน:</div>
+                                <div class="data-value">${reg.idCard}</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">รุ่นเครื่อง:</div>
+                                <div class="data-value">${reg.deviceModel}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+
+        function viewDetails(index) {
+            const reg = allRegistrations[index];
+            window.currentRegistrationData = reg;
+            displayFormData(reg);
+        }
+
+        function deleteRegistration(index) {
+            if (confirm('ต้องการลบข้อมูลการลงทะเบียนนี้หรือไม่?')) {
+                allRegistrations.splice(index, 1);
+                showSection('summary'); // รีเฟรชหน้าสรุป
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menuItems = document.getElementById('menuItems');
+            menuItems.classList.toggle('active');
+        }
+
+        function clearAllData() {
+            if (confirm('ต้องการลล้างข้อมูลทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้')) {
+                allRegistrations = [];
+                alert('ลบข้อมูลทั้งหมดเรียบร้อยแล้ว');
+                showSection('registration');
+            }
+        }
+
+        function backupData() {
+            const dataStr = JSON.stringify(allRegistrations, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `accu-chek-backup-${new Date().getTime()}.json`;
+            link.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        allRegistrations = [...allRegistrations, ...importedData];
+                        alert(`นำเข้าข้อมูลสำเร็จ ${importedData.length} รายการ`);
+                        showSection('summary');
+                    } catch (error) {
+                        alert('ไฟล์ข้อมูลไม่ถูกต้อง');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function exportAllData() {
+            if (allRegistrations.length === 0) {
+                alert('ไม่มีข้อมูลให้ส่งออก');
+                return;
+            }
+            
+            const csvContent = 'ชื่อ,นามสกุล,เลขบัตรประชาชน,เบอร์โทร,รุ่นเครื่อง,วันที่ลงทะเบียน\n' +
+                allRegistrations.map(reg => 
+                    `"${reg.firstName}","${reg.lastName}","${reg.idCard}","${reg.phone}","${reg.deviceModel}","${reg.registrationDate}"`
+                ).join('\n');
+            
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `accu-chek-all-data-${new Date().getTime()}.csv`;
+            link.click();
+        }
+        document.getElementById('idCard').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 13) {
+                value = value.substring(0, 13);
+            }
+            e.target.value = value;
+        });
+
+        // ฟังก์ชันตรวจสอบและจัดรูปแบบเบอร์โทรศัพท์
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            e.target.value = value;
+        });
+
+        // จัดการการส่งฟอร์ม
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // ตรวจสอบข้อมูลพื้นฐาน
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#e1e5e9';
+                }
+            });
+
+            // ตรวจสอบเลขบัตรประชาชน
+            const idCard = document.getElementById('idCard').value;
+            if (idCard.length !== 13) {
+                document.getElementById('idCard').style.borderColor = '#e74c3c';
+                isValid = false;
+            }
+
+            // ตรวจสอบเบอร์โทรศัพท์
+            const phone = document.getElementById('phone').value;
+            if (phone.length !== 10) {
+                document.getElementById('phone').style.borderColor = '#e74c3c';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // เก็บข้อมูลในตัวแปร
+                const formData = collectFormData();
+                
+                // เพิ่มข้อมูลลงในอาร์เรย์ทั้งหมด
+                allRegistrations.push(formData);
+                
+                // แสดงข้อความสำเร็จ
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // แสดงข้อมูลที่กรอก
+                displayFormData(formData);
+                
+                // เลื่อนไปที่ข้อความสำเร็จ
+                document.getElementById('successMessage').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            } else {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
+            }
+        });
+
+        // ฟังก์ชันรวบรวมข้อมูลจากฟอร์ม
+        function collectFormData() {
+            const form = document.getElementById('registrationForm');
+            const formData = new FormData(form);
+            const data = {};
+            
+            // แปลงข้อมูลเป็น object
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // เพิ่มวันที่และเวลาที่ลงทะเบียน
+            data.registrationDate = new Date().toLocaleString('th-TH');
+            
+            return data;
+        }
+
+        // ฟังก์ชันแสดงข้อมูลที่ลงทะเบียน
+        function displayFormData(data) {
+            const labels = {
+                firstName: 'ชื่อ',
+                lastName: 'นามสกุล',
+                idCard: 'เลขบัตรประชาชน',
+                birthDate: 'วันเกิด',
+                phone: 'เบอร์โทรศัพท์',
+                email: 'อีเมล',
+                address: 'ที่อยู่',
+                diabetesType: 'ประเภทเบาหวาน',
+                diagnosisYear: 'ปีที่ได้รับการวินิจฉัย',
+                hospital: 'โรงพยาบาล',
+                doctor: 'แพทย์ผู้ดูแล',
+                deviceModel: 'รุ่นเครื่อง',
+                reason: 'เหตุผล',
+                consent: 'ยินยอมการใช้ข้อมูล',
+                newsletter: 'รับข้อมูลข่าวสาร',
+                registrationDate: 'วันที่ลงทะเบียน'
+            };
+
+            const diabetesTypes = {
+                type1: 'เบาหวานชนิดที่ 1',
+                type2: 'เบาหวานชนิดที่ 2',
+                gestational: 'เบาหวานขณะตั้งครรภ์',
+                other: 'อื่นๆ'
+            };
+
+            const deviceModels = {
+                guide: 'Accu-Chek Guide',
+                instant: 'Accu-Chek Instant',
+                active: 'Accu-Chek Active',
+                performa: 'Accu-Chek Performa'
+            };
+
+            let html = '';
+            
+            for (let key in data) {
+                if (data[key] && labels[key]) {
+                    let value = data[key];
+                    
+                    // แปลงค่าให้อ่านง่าย
+                    if (key === 'diabetesType') {
+                        value = diabetesTypes[value] || value;
+                    } else if (key === 'deviceModel') {
+                        value = deviceModels[value] || value;
+                    } else if (key === 'consent' || key === 'newsletter') {
+                        value = value === 'on' ? '✅ ใช่' : '❌ ไม่';
+                    }
+                    
+                    html += `
+                        <div class="data-row">
+                            <div class="data-label">${labels[key]}:</div>
+                            <div class="data-value">${value}</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('displayedData').innerHTML = html;
+            document.getElementById('dataDisplay').style.display = 'block';
+            
+            // เก็บข้อมูลในตัวแปรสำหรับใช้ในฟังก์ชันอื่น
+            window.currentRegistrationData = data;
+        }
+
+        // ฟังก์ชันพิมพ์ข้อมูล
+        function printData() {
+            const printWindow = window.open('', '_blank');
+            const data = window.currentRegistrationData;
+            
+            if (!data) return;
+            
+            const printContent = `
+                <html>
+                <head>
+                    <title>ข้อมูลลงทะเบียน Accu-Chek</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .data-row { margin: 10px 0; padding: 5px 0; border-bottom: 1px solid #eee; }
+                        .label { font-weight: bold; display: inline-block; width: 200px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>ข้อมูลลงทะเบียนรับเครื่องมือ Accu-Chek</h1>
+                        <p>วันที่พิมพ์: ${new Date().toLocaleString('th-TH')}</p>
+                    </div>
+                    ${document.getElementById('displayedData').innerHTML}
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // ฟังก์ชันดาวน์โหลดเป็น CSV
+        function downloadData() {
+            const data = window.currentRegistrationData;
+            if (!data) return;
+            
+            const csvContent = Object.entries(data)
+                .map(([key, value]) => `"${key}","${value}"`)
+                .join('\n');
+            
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `accu-chek-registration-${new Date().getTime()}.csv`;
+            link.click();
+        }
+
+        // ฟังก์ชันคัดลอกข้อมูล
+        function copyData() {
+            const data = window.currentRegistrationData;
+            if (!data) return;
+            
+            const textContent = Object.entries(data)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+            
+            navigator.clipboard.writeText(textContent).then(() => {
+                alert('คัดลอกข้อมูลเรียบร้อยแล้ว!');
+            }).catch(() => {
+                // สำหรับบราวเซอร์ที่ไม่รองรับ clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = textContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('คัดลอกข้อมูลเรียบร้อยแล้ว!');
+            });
+        }
+
+        // เพิ่มเอฟเฟกต์ hover สำหรับ input fields
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+            });
+            
+            field.addEventListener('mouseleave', function() {
+                if (this !== document.activeElement) {
+                    this.style.transform = 'translateY(0)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
